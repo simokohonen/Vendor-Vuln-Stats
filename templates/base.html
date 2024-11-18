@@ -1,0 +1,131 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vendor Vulnerability Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bulma.min.js"></script>    
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        .table-container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+  <nav class="navbar is-dark is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand is-flex is-align-items-center is-justify-content-center" style="width: 100%;">
+      <a class="navbar-item" href="/">
+        <strong><i class="fa-solid fa-bug"></i> Vendor Vulnerability Statistics</strong>
+      </a>
+
+      <a href="https://github.com/your-profile" target="_blank" class="navbar-item icon is-large">
+        <i class="fab fa-github"></i>
+      </a>
+      
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+
+
+
+  <div class="container mt-5">
+    <div class="content has-text-justified mb-5">
+      <h6>Vendors releasing vulnerable software, hardware and applications remains a critical problem for organizations globally.</h6>
+      <p>
+        The 'Vendor Vulnerability Statistics' index is created by aggregating <a href="https://services.nvd.nist.gov/rest/json/cves/2.0">all high-severity CVEs from the past five years</a>, the CISA <a href="https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json">Known Exploited Vulnerabilities (KEV)</a> feed, and known vulnerabilities used by ransomware actors (from <a href="https://github.com/BushidoUK/Ransomware-Vulnerability-Matrix/tree/main">BushidoToken's Ransomware Matrix.</a>)
+      </p>   
+      <p> The Aggregate Score is a weighted score across the three columns (CVE, CISA and Ransomware Matrix) with the following weighting: CVE=0.2, CISA=0.3, Ransomware=0.5 </p> 
+      <p class="has-text-danger"> This is an experimental scoring and does not, in it's current form, indicate direct risk of using a product by a given vendor.</p>
+    </div>
+
+    <!-- Security Vendors Filter Button -->
+    <div class="field mb-5">
+      <label class="checkbox">
+        <input type="checkbox" id="securityVendorsOnly">
+        Security Vendors Only
+      </label>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table id="dangerIndexTable" class="mt-5 table is-striped is-bordered is-hoverable datatable is-fullwidth">
+        <thead>
+          <tr>
+            <th>Vendor</th>
+            <th>CVE Count</th>
+            <th>CISA KEV Count</th>
+            <th>Ransomware Appearance Count</th>
+            <th>Aggregate Score (0-100)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in danger_index %}
+          <tr>
+            <td>{{ item.name }}</td> 
+            <td>{{ item.cve_count }}</td>
+            <td>{{ item.cisa_kev_count }}</td>
+            <td>{{ item.ransomware_count }}</td>
+            <td>{{ item.danger_score }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bulma.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        const securityVendors = [
+          "Microsoft",
+          "Cisco",
+          "Ivanti",
+          "Citrix",
+          "Fortinet",
+          "Juniper",
+          "F5",
+          "Dell",
+          "Sophos",
+          "Veeam"
+        ];
+        const table = $('#dangerIndexTable').DataTable({
+          paging: true,
+          lengthChange: true,
+          searching: true,
+          ordering: true,
+          info: true,
+          autoWidth: false,
+          responsive: true,
+          pageLength: 100
+        });
+
+        // Filter functionality for security vendors
+        $('#securityVendorsOnly').on('change', function () {
+          if (this.checked) {
+            const regex = `^(${securityVendors.join('|')})$`;
+            table.columns(0).search(regex, true, false).draw(); // Match vendors in the list
+          } else {
+            table.columns(0).search('').draw(); // Clear filter
+          }
+        });
+      });
+    </script>
+
+
+</body>
+</html>
