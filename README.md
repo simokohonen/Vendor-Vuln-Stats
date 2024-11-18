@@ -1,4 +1,4 @@
-# 'Vendor Vulnerability Statistics' Index 
+# Vendor Vulnerability Statistics Index 
 
 Work in progress!
 
